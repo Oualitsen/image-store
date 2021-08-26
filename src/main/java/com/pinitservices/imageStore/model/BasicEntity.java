@@ -7,22 +7,28 @@ package com.pinitservices.imageStore.model;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  *
  * @author Ramdane
  */
+@Document
 public class BasicEntity {
-    
+
     @Id
     private String id;
-    
+
     @CreatedDate
     private long creationDate;
-    
+
     @LastModifiedDate
     private long lastUpdate;
+
+    @LastModifiedBy
+    private String lastModifiedBy;
 
     public String getId() {
         return id;
@@ -47,6 +53,13 @@ public class BasicEntity {
     public void setLastUpdate(long lastUpdate) {
         this.lastUpdate = lastUpdate;
     }
-    
-    
+
+    public String getLastModifiedBy() {
+        return lastModifiedBy;
+    }
+
+    public void setLastModifiedBy(String lastModifiedBy) {
+        this.lastModifiedBy = lastModifiedBy;
+    }
+
 }

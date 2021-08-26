@@ -6,11 +6,13 @@
 package com.pinitservices.imageStore.model;
 
 import com.pinitservices.imageStore.utils.ImageUtils;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  *
  * @author Ramdane
  */
+@Document
 public class ImageData extends BasicEntity {
 
     public static final String FIELD_IMAGE_DATA = "imageData";
