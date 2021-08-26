@@ -18,5 +18,7 @@ import reactor.core.publisher.Mono;
 @Repository
 public interface ImageDataCacheRepository extends ReactiveMongoRepository<ImageDataCache, String> {
     
-    Mono<ImageDataCache> findByOriginalImageIdAndWidth(String id, int width);
+    Mono<ImageDataCache> findFirstByOriginalImageIdAndWidth(String id, int width);
+    
+    Mono<Void> deleteAllByOriginalImageId(String originalImageId);
 }

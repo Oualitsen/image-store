@@ -5,15 +5,17 @@
  */
 package com.pinitservices.imageStore.controllers;
 
+import com.pinitservices.imageStore.exceptions.ImageNotFoundException;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 
 import com.pinitservices.imageStore.model.ImageData;
-import com.pinitservices.imageStore.repositories.ImageDataRepository;
+import com.pinitservices.imageStore.model.ImagePayload;
 import com.pinitservices.imageStore.services.ImageService;
 import com.pinitservices.imageStore.utils.ImageUtils;
-
+import java.nio.ByteBuffer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -35,9 +37,6 @@ import reactor.core.publisher.Mono;
 public class ImageController {
 
     @Autowired
-    private ImageDataRepository imageDataRepository;
-    
-    @Autowired
     private ImageService service;
 
     @Autowired
@@ -46,7 +45,7 @@ public class ImageController {
     private final int[] ranges = new int[67];
 
     @PostConstruct
-    private void init() {
+    public void init() {
 
         int range = 32;
 
@@ -61,51 +60,38 @@ public class ImageController {
 
     }
 
-  
-
-    @GetMapping(value = "{id}", produces = { MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE})
+    @GetMapping(value = "{id}", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE})
     public Mono<byte[]> getImage(@PathVariable String id,
             @RequestParam(required = false, defaultValue = "0") int size) {
-        
-        
-        return service.getImage(id, size).map(ImageData::getImageData);
+
+        return service.getImage(id, size).map(ImageData::getImageData).switchIfEmpty(Mono.defer(() -> {
+            throw new ImageNotFoundException(id);
+        }));
 
     }
 
     @PostMapping
-    public Mono<String> saveImage(@RequestBody Mono<ImageData> imageDataMono) {
-        return imageDataMono.flatMap(image -> {
-         return imageDataRepository.save(image);
-        }).map(ImageData::getId);
-        
+    public Mono<String> saveImage(@RequestBody Mono<ImagePayload> imageDataMono) {
+        return imageDataMono.map(ImagePayload::getData).map(ImageUtils::create)
+                .flatMap(service::save)
+                .map(ImageData::getId);
+
     }
 
     @PostMapping("file")
     public Object saveImagePart(@RequestPart("data") Mono<FilePart> filePartMono) {
-      return  filePartMono.flatMapMany(fp -> fp.content())
-                .map(buffer -> {
-                    return buffer.asByteBuffer().array();
-                })
-                .reduce(ImageUtils::concat).map(ImageUtils::create).flatMap(image -> {
-                    
-                    return imageDataRepository.save(image);
-                
-                }).map(ImageData::getId);
-
-
-    }
-
-    @PostMapping("/test")
-    public Mono<String> sendData(@RequestBody String data) {
-
-        logger.info("send data");
-        return Mono.just(data);
+        logger.info("saveImagePart ");
+        return filePartMono.flatMapMany(fp -> fp.content())
+                .map(DataBuffer::asByteBuffer)
+                .map(ByteBuffer::array)
+                .reduce(ImageUtils::concat).map(ImageUtils::create).flatMap(service::save).map(ImageData::getId);
 
     }
 
     @DeleteMapping("{id}")
     public Mono<Void> removeImage(@PathVariable String id) {
-        return imageDataRepository.deleteById(id);
+        logger.info("removeImage " + id);
+        return service.deleteById(id);
     }
 
 }
