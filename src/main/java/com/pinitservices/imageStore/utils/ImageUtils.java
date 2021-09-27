@@ -10,7 +10,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +17,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import org.apache.tika.Tika;
-import org.springframework.core.io.buffer.DataBuffer;
 
 /**
  *
@@ -60,8 +58,10 @@ public class ImageUtils {
 
                 int orientation = (Integer) exif.get(0x0112);
                 switch (orientation) {
-                    case 3 -> image.rotate(180);
-                    case 6 -> image.rotate(90);
+                    case 3 ->
+                        image.rotate(180);
+                    case 6 ->
+                        image.rotate(90);
                 }
             }
 
@@ -121,37 +121,20 @@ public class ImageUtils {
 
     public static byte[] collect(List<Byte> list) {
         byte[] result = new byte[list.size()];
-        
-        
-        for(int i = 0; i<list.size(); i++) {
+
+        for (int i = 0; i < list.size(); i++) {
             result[i] = list.get(i);
         }
         return result;
     }
-    
-    public static byte[] concat(byte[] a, byte[] b ) {
+
+    public static byte[] concat(byte[] a, byte[] b) {
         byte[] result = new byte[a.length + b.length];
-        
+
         System.arraycopy(a, 0, result, 0, a.length);
-        System.arraycopy(b, 0, result, a.length,  b.length);
-        
-        
-        
+        System.arraycopy(b, 0, result, a.length, b.length);
+
         return result;
-    } 
-    
-    public static void main(String[] args) {
-        byte[] a = {0, 1, 2};
-        byte[] b = {3, 4, 5, 6};
-        
-        var result = concat(a, b);
-        
-        for(byte _byte:result) {
-            System.out.println("byte = " + _byte);
-        }
-        
     }
-    
-    
 
 }

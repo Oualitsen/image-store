@@ -9,9 +9,8 @@ import com.pinitservices.imageStore.model.ImageData;
 import com.pinitservices.imageStore.model.ImageDataCache;
 import com.pinitservices.imageStore.repositories.ImageDataCacheRepository;
 import com.pinitservices.imageStore.repositories.ImageDataRepository;
-import java.util.logging.Logger;
+import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -20,10 +19,8 @@ import reactor.core.publisher.Mono;
  * @author Ramdane
  */
 @Service
+@Log
 public class ImageService {
-
-    @Autowired
-    private Logger logger;
 
     @Autowired
     private ImageDataCacheRepository cacheRepo;

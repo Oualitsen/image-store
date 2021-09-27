@@ -14,6 +14,7 @@ import com.pinitservices.imageStore.model.ImagePayload;
 import com.pinitservices.imageStore.services.ImageService;
 import com.pinitservices.imageStore.utils.ImageUtils;
 import java.nio.ByteBuffer;
+import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.MediaType;
@@ -26,21 +27,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.function.server.ServerResponse;
 
 import reactor.core.publisher.Mono;
 
 /**
  *
+ *
  * @author Ramdane
  */
 @RestController
+@Log
 public class ImageController {
 
     @Autowired
     private ImageService service;
-
-    @Autowired
-    private Logger logger;
 
     private final int[] ranges = new int[67];
 
@@ -80,7 +81,7 @@ public class ImageController {
 
     @PostMapping("file")
     public Object saveImagePart(@RequestPart("data") Mono<FilePart> filePartMono) {
-        logger.info("saveImagePart ");
+        log.info("saveImagePart ");
         return filePartMono.flatMapMany(fp -> fp.content())
                 .map(DataBuffer::asByteBuffer)
                 .map(ByteBuffer::array)
@@ -90,7 +91,7 @@ public class ImageController {
 
     @DeleteMapping("{id}")
     public Mono<Void> removeImage(@PathVariable String id) {
-        logger.info("removeImage " + id);
+        log.info("removeImage " + id);
         return service.deleteById(id);
     }
 
