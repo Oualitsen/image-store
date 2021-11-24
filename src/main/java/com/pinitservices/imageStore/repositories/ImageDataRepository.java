@@ -10,6 +10,8 @@ import com.pinitservices.imageStore.model.ImageData;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
 
+import reactor.core.publisher.Mono;
+
 /**
  *
  * @author Ramdane
@@ -17,4 +19,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ImageDataRepository extends ReactiveMongoRepository<ImageData, String> {
 
+    Mono<Void> deleteByIdAndOwnerId(String id, String ownerId);
 }

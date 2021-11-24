@@ -9,6 +9,8 @@ import com.pinitservices.imageStore.model.ImageData;
 import com.pinitservices.imageStore.model.ImageDataCache;
 import com.pinitservices.imageStore.repositories.ImageDataCacheRepository;
 import com.pinitservices.imageStore.repositories.ImageDataRepository;
+
+import lombok.experimental.Delegate;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,13 +20,14 @@ import reactor.core.publisher.Mono;
  *
  * @author Ramdane
  */
-@Service
 @Log
-public class ImageService {
+@Service
+public class ImageService implements ImageDataRepository {
 
     @Autowired
     private ImageDataCacheRepository cacheRepo;
 
+    @Delegate
     @Autowired
     private ImageDataRepository repo;
 
@@ -34,15 +37,14 @@ public class ImageService {
             return repo.findById(imageId);
         }
 
-        return cacheRepo.findFirstByOriginalImageIdAndWidth(imageId, width).cast(ImageData.class).switchIfEmpty(Mono.defer(() -> {
-            return repo.findById(imageId)
-                    .map(image -> image.scaleWidth(width))
-                    .doOnNext(image -> {
+        return cacheRepo.findFirstByOriginalImageIdAndWidth(imageId, width).cast(ImageData.class)
+                .switchIfEmpty(Mono.defer(() -> {
+                    return repo.findById(imageId).map(image -> image.scaleWidth(width)).doOnNext(image -> {
                         image.setId(imageId);
                         cache(image);
                     });
 
-        }));
+                }));
 
     }
 
@@ -50,12 +52,12 @@ public class ImageService {
         cacheRepo.save(ImageDataCache.fromImageData(imageData)).cast(ImageData.class).subscribe();
     }
 
-    public <S extends ImageData> Mono<S> save(S s) {
-        return repo.save(s);
+    public Mono<Void> removeImageById(String imageId) {
+        return repo.deleteById(imageId).flatMap(e -> cacheRepo.deleteAllByOriginalImageId(imageId));
     }
 
-    public Mono<Void> deleteById(String id) {
-        return repo.deleteById(id).zipWith(cacheRepo.deleteAllByOriginalImageId(id)).map(t -> null);
+    public Mono<Void> removeImageByIdAndOwnerId(String id, String ownerId) {
+        return repo.deleteByIdAndOwnerId(id, ownerId).flatMap(e -> cacheRepo.deleteAllByOriginalImageId(id));
     }
 
 }
