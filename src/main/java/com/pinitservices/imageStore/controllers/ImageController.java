@@ -6,7 +6,6 @@
 package com.pinitservices.imageStore.controllers;
 
 import com.pinitservices.imageStore.exceptions.ImageNotFoundException;
-import javax.annotation.PostConstruct;
 
 import com.pinitservices.imageStore.model.ImageData;
 import com.pinitservices.imageStore.model.ImagePayload;
@@ -79,8 +78,6 @@ public class ImageController {
                     return id;
                 }).flatMap(service::save).map(ImageData::getId);
     }
-
-    
 
     @DeleteMapping("{id}")
     public Mono<Void> removeImage(@PathVariable String id,

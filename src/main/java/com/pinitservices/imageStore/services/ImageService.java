@@ -9,9 +9,7 @@ import com.pinitservices.imageStore.model.ImageData;
 import com.pinitservices.imageStore.model.ImageDataCache;
 import com.pinitservices.imageStore.repositories.ImageDataCacheRepository;
 import com.pinitservices.imageStore.repositories.ImageDataRepository;
-
 import lombok.experimental.Delegate;
-import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -20,7 +18,6 @@ import reactor.core.publisher.Mono;
  *
  * @author Ramdane
  */
-@Log
 @Service
 public class ImageService implements ImageDataRepository {
 
