@@ -5,13 +5,9 @@
  */
 package com.pinitservices.imageStore.repositories;
 
-import com.pinitservices.imageStore.model.ImageData;
-
-import org.springframework.data.domain.Pageable;
+import com.pinitservices.imageStore.model.VideoData;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
-
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -19,7 +15,7 @@ import reactor.core.publisher.Mono;
  * @author Ramdane
  */
 @Repository
-public interface ImageDataRepository extends ReactiveMongoRepository<ImageData, String> {
+public interface VideoDataRepository extends ReactiveMongoRepository<VideoData, String> {
 
     Mono<Void> deleteByIdAndOwnerId(String id, String ownerId);
 

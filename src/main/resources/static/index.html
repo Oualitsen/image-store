@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="container mt-5">
+    <h1>Multiple File Upload Demo!</h1>
+    <form class="mt-3" action="/image/part/multi" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label>Multi</label>
+            <input type="file" name="data" id="files" multiple>
+        </div>
+        <br>
+        <div class="form-group mt-3">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </form>
+    <hr>
+    <h1>Multiple File Upload Demo!</h1>
+    <form class="mt-3" action="/video/multi" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label>Multi</label>
+            <input type="file" name="video" id="videos" multiple>
+        </div>
+        <br>
+        <div class="form-group mt-3">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </form>
+
+    <video src="http://localhost:9090/video/620385537991d8519ca9a2fc" controls></video>
+
+</div>
+</body>
+</html>

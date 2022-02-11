@@ -5,28 +5,36 @@
  */
 package com.pinitservices.imageStore.services;
 
+import com.pinitservices.imageStore.model.BasicEntity;
 import com.pinitservices.imageStore.model.ImageData;
 import com.pinitservices.imageStore.model.ImageDataCache;
+import com.pinitservices.imageStore.model.VideoData;
 import com.pinitservices.imageStore.repositories.ImageDataCacheRepository;
 import com.pinitservices.imageStore.repositories.ImageDataRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.Delegate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 /**
- *
  * @author Ramdane
  */
 @Service
-public class ImageService implements ImageDataRepository {
+@RequiredArgsConstructor
+public class ImageService {
 
-    @Autowired
-    private ImageDataCacheRepository cacheRepo;
+    private final ImageDataCacheRepository cacheRepo;
 
-    @Delegate
-    @Autowired
-    private ImageDataRepository repo;
+    private final ImageDataRepository repo;
+    private final ReactiveMongoTemplate template;
 
     public Mono<ImageData> getImage(String imageId, int width) {
 
@@ -34,14 +42,17 @@ public class ImageService implements ImageDataRepository {
             return repo.findById(imageId);
         }
 
-        return cacheRepo.findFirstByOriginalImageIdAndWidth(imageId, width).cast(ImageData.class)
-                .switchIfEmpty(Mono.defer(() -> {
-                    return repo.findById(imageId).map(image -> image.scaleWidth(width)).doOnNext(image -> {
-                        image.setId(imageId);
-                        cache(image);
-                    });
+        return cacheRepo.findFirstByOriginalImageIdAndWidth(imageId, width)
+                .cast(ImageData.class)
+                .switchIfEmpty(
+                        repo.findById(imageId).map(image -> image.scaleWidth(width))
+                                .doOnNext(image -> {
+                                    image.setId(imageId);
+                                    cache(image);
+                                })
 
-                }));
+                );
+
 
     }
 
@@ -57,4 +68,24 @@ public class ImageService implements ImageDataRepository {
         return repo.deleteByIdAndOwnerId(id, ownerId).flatMap(e -> cacheRepo.deleteAllByOriginalImageId(id));
     }
 
+    public Mono<ImageData> save(ImageData entity) {
+        return repo.save(entity);
+    }
+
+    public Mono<ImageData> findById(String s) {
+        return repo.findById(s);
+    }
+
+    public Flux<ImageData> findByOwnerId(String ownerId, Pageable pageable) {
+
+        Query query = Query.query(Criteria.where(VideoData.Fields.ownerId).is(ownerId)).with(pageable);
+        query.fields().exclude(ImageData.Fields.imageData);
+        return template.find(query, ImageData.class);
+    }
+
+    public Mono<Void> deleteAllByOwnerId(String ownerId, List<String> ids) {
+        return Flux.fromStream(ids.stream())
+                .flatMap(id -> repo.deleteByIdAndOwnerId(id, ownerId))
+                .then();
+    }
 }

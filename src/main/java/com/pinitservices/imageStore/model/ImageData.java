@@ -6,13 +6,15 @@
 package com.pinitservices.imageStore.model;
 
 import com.pinitservices.imageStore.utils.ImageUtils;
+import com.pinitservices.imageStore.utils.Utils;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.http.codec.multipart.FilePart;
+import reactor.core.publisher.Mono;
 
 /**
- *
  * @author Ramdane
  */
 @Document
@@ -21,7 +23,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @FieldNameConstants
 public class ImageData extends BasicEntity {
 
-    private static final int[] ranges = new int[67];
+    public static final int[] ranges = new int[67];
 
     static {
         int range = 32;
@@ -36,6 +38,15 @@ public class ImageData extends BasicEntity {
         }
     }
 
+
+    private byte[] imageData;
+    private String imageType;
+    private int width;
+    private int height;
+
+    private String ownerId;
+    private String fileName;
+
     private static int getClosest(int requiredSized) {
 
         for (int range : ranges) {
@@ -47,12 +58,16 @@ public class ImageData extends BasicEntity {
 
     }
 
-    private byte[] imageData;
-    private String imageType;
-    private int width;
-    private int height;
+    public static Mono<ImageData> from(FilePart filePart) {
 
-    private String ownerId;
+        return filePart.content()
+                .map(buff -> buff.asByteBuffer().array())
+                .reduce(Utils::concat)
+                .map(ImageUtils::create)
+                .doOnNext(e -> e.setFileName(filePart.filename()));
+
+
+    }
 
     public ImageData scaleWidth(int newWidth) {
 

@@ -1,0 +1,1 @@
+echo %time%>file.txt

@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  *
  * @author Ramdane
  */
-@ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "Image not found")
-public class ImageNotFoundException extends RuntimeException {
+@ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "Image/Video not found")
+public class ResourceFoundException extends RuntimeException {
 
     private final String imageId;
 
-    public ImageNotFoundException(String imageId) {
+    public ResourceFoundException(String imageId) {
         super(String.format("Image [%s] not found", imageId));
         this.imageId = imageId;
     }
