@@ -18,9 +18,8 @@ public class ImageDataCache extends ImageData {
         cache.setOriginalImageId(imageData.getId());
         cache.setHeight(imageData.getHeight());
         cache.setWidth(imageData.getWidth());
-        cache.setImageType(imageData.getImageType());
-
-        cache.setImageData(imageData.getImageData());
+        cache.setType(imageData.getType());
+        cache.setData(imageData.getData());
 
         return cache;
 

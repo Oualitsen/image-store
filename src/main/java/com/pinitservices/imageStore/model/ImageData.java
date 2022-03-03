@@ -21,7 +21,7 @@ import reactor.core.publisher.Mono;
 @Getter
 @Setter
 @FieldNameConstants
-public class ImageData extends BasicEntity {
+public class ImageData extends DataEntity {
 
     public static final int[] ranges = new int[67];
 
@@ -39,13 +39,11 @@ public class ImageData extends BasicEntity {
     }
 
 
-    private byte[] imageData;
-    private String imageType;
+
     private int width;
     private int height;
 
-    private String ownerId;
-    private String fileName;
+
 
     private static int getClosest(int requiredSized) {
 
@@ -80,7 +78,7 @@ public class ImageData extends BasicEntity {
         ImageData image = new ImageData();
         image.width = _newWidth;
         image.height = (int) (height * ((double) _newWidth / (double) this.width));
-        image.imageData = ImageUtils.scale(imageData, imageType, image.width, image.height);
+        image.data = ImageUtils.scale(data, type, image.width, image.height);
         return image;
     }
 

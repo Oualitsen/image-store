@@ -5,15 +5,13 @@
  */
 package com.pinitservices.imageStore.services;
 
-import com.pinitservices.imageStore.model.BasicEntity;
+import com.pinitservices.imageStore.model.DataEntity;
 import com.pinitservices.imageStore.model.ImageData;
 import com.pinitservices.imageStore.model.ImageDataCache;
-import com.pinitservices.imageStore.model.VideoData;
 import com.pinitservices.imageStore.repositories.ImageDataCacheRepository;
 import com.pinitservices.imageStore.repositories.ImageDataRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.Delegate;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -30,6 +28,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ImageService {
+
+    @Value("${serverUrl}")
+    private String url;
 
     private final ImageDataCacheRepository cacheRepo;
 
@@ -52,8 +53,6 @@ public class ImageService {
                                 })
 
                 );
-
-
     }
 
     private void cache(ImageData imageData) {
@@ -69,6 +68,8 @@ public class ImageService {
     }
 
     public Mono<ImageData> save(ImageData entity) {
+
+
         return repo.save(entity);
     }
 
@@ -78,8 +79,8 @@ public class ImageService {
 
     public Flux<ImageData> findByOwnerId(String ownerId, Pageable pageable) {
 
-        Query query = Query.query(Criteria.where(VideoData.Fields.ownerId).is(ownerId)).with(pageable);
-        query.fields().exclude(ImageData.Fields.imageData);
+        Query query = Query.query(Criteria.where(DataEntity.Fields.ownerId).is(ownerId)).with(pageable);
+        query.fields().exclude(DataEntity.Fields.data);
         return template.find(query, ImageData.class);
     }
 
@@ -88,4 +89,8 @@ public class ImageService {
                 .flatMap(id -> repo.deleteByIdAndOwnerId(id, ownerId))
                 .then();
     }
+
+
+
+
 }

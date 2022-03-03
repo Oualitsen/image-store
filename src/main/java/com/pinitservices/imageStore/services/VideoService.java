@@ -1,6 +1,7 @@
 package com.pinitservices.imageStore.services;
 
 import com.pinitservices.imageStore.model.BasicEntity;
+import com.pinitservices.imageStore.model.DataEntity;
 import com.pinitservices.imageStore.model.VideoData;
 import com.pinitservices.imageStore.repositories.VideoDataRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,10 @@ public class VideoService {
                 .flatMap(repository::save);
     }
 
+    public Mono<VideoData> save(VideoData data) {
+        return repository.save(data);
+    }
+
     public Mono<Void> deleteById(String id) {
         return repository.deleteById(id);
     }
@@ -44,28 +49,21 @@ public class VideoService {
 
     public Mono<VideoData> findByIdWithNoData(String id) {
         Query query = Query.query(Criteria.where(BasicEntity.Fields.id).is(id));
-        query.fields().exclude(VideoData.Fields.data);
-
+        query.fields().exclude(DataEntity.Fields.data);
         return template.findOne(query, VideoData.class);
     }
 
 
     public Flux<VideoData> findByOwnerId(String ownerId, Pageable pageable) {
-
-        Query query = Query.query(Criteria.where(VideoData.Fields.ownerId).is(ownerId)).with(pageable);
-        query.fields().exclude(VideoData.Fields.data);
+        Query query = Query.query(Criteria.where(DataEntity.Fields.ownerId).is(ownerId)).with(pageable);
+        query.fields().exclude(DataEntity.Fields.data);
         return template.find(query, VideoData.class);
-
     }
 
 
     public Mono<Void> deleteAllByOwnerId(String ownerId, List<String> ids) {
-
-
         return Flux.fromStream(ids.stream())
                 .flatMap(id -> repository.deleteByIdAndOwnerId(id, ownerId))
                 .then();
-
-
     }
 }

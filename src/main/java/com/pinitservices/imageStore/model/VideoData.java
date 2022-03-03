@@ -12,13 +12,9 @@ import reactor.core.publisher.Mono;
 @Setter
 @ToString
 @FieldNameConstants
-public class VideoData extends BasicEntity {
-
-    private byte[] data;
-    private String type;
-    private String ownerId;
+public class VideoData extends DataEntity {
     private long length;
-    private String fileName;
+    private String thumbnail;
 
     public static Mono<VideoData> from(FilePart filePart) {
         return filePart.content()

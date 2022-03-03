@@ -19,10 +19,6 @@ import lombok.extern.java.Log;
 @Log
 public class ImageUtils {
 
-
-
-
-
     public static byte[] scale(byte[] image, String type, int dWidth, int dHeight) {
 
         var img = new javaxt.io.Image(image);
@@ -38,7 +34,7 @@ public class ImageUtils {
         var imageData = new ImageData();
         imageData.setWidth(image.getWidth());
         imageData.setHeight(image.getHeight());
-        imageData.setImageType(ImageUtils.getImageType(data).replaceFirst("image/", ""));
+        imageData.setType(ImageUtils.getImageType(data));
         final HashMap<Integer, Object> exif = image.getExifTags();
         try {
 
@@ -57,7 +53,7 @@ public class ImageUtils {
             log.log(Level.WARNING, null, ex);
         }
 
-        imageData.setImageData(image.getByteArray(imageData.getImageType()));
+        imageData.setData(image.getByteArray(imageData.getType()));
         return imageData;
 
     }
